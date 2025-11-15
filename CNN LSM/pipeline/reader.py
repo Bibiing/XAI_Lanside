@@ -14,12 +14,16 @@ def read_data_from_tif(tif_path):
 
 def validate_consistency(feature_dir, label_path):
     """Validate all .tif files to have the same geotransform and dimensions"""
-    _, label_transform, label_dims = read_data_from_tif(label_path)
+    label_tif = gdal.Open(label_path)
+    label_transform = label_tif.GetGeoTransform()
+    label_dims = (label_tif.RasterXSize, label_tif.RasterYSize)
     
     for tif_name in os.listdir(feature_dir):
         if tif_name.endswith('.tif'):
             feature_path = os.path.join(feature_dir, tif_name)
-            _, feature_transform, feature_dims = read_data_from_tif(feature_path)
+            feature_tif = gdal.Open(feature_path)
+            feature_transform = feature_tif.GetGeoTransform()
+            feature_dims = (feature_tif.RasterXSize, feature_tif.RasterYSize)
             
             if label_transform != feature_transform or label_dims != feature_dims:
                 print(f"ERROR: File '{tif_name}' inconsistent with the label")
