@@ -72,6 +72,8 @@ def get_ML_data(tif_paths, label_path):
         data.append(img)
     data_name.append('label')   
     data = np.array(data)
+
+    # 0 longsor; 1 nls
     train_data = []
     mask_0 = label == 0
     i_indices_0, j_indices_0 = np.where(mask_0)
