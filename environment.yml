@@ -1,4 +1,4 @@
-name: lsm-project-env
+name: KP
 channels:
   - pytorch
   - nvidia
@@ -13,10 +13,8 @@ dependencies:
   - gdal
   - numpy
   - pandas
-  - tqdm
   - shap
   - matplotlib
   - scikit-learn
-  - seaborn
-# conda env create -f environment.yml
-# conda activate lsm-project-env
+  - optuna
+  - xgboost

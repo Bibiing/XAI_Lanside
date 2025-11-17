@@ -20,9 +20,9 @@ FEATURE_NAMES = [
     "plan", "prof", "Slope", "SPI", "STI", "sungai", "TWI"
 ]
 FEATURE_FILES = [f"{name}.tif" for name in FEATURE_NAMES]
-MODEL_PATH = "hasil kotak 97,95/hasil terbaik.pth"
-FEATURE_PATH = "data_kotak/feature/"
-LABEL_PATH = "data_kotak/label/label1.tif"
+MODEL_PATH = "Hasil/mojokerto/feature11/best.pth"
+FEATURE_PATH = "Data/mojokerto/feature11/"
+LABEL_PATH = "Data/mojokerto/label/label1.tif"
 WINDOW_SIZE = 15
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 OUTPUT_DIR = "Final_SHAP_Results"

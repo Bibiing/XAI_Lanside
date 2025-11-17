@@ -98,7 +98,7 @@ def get_ML_data(tif_paths, label_path):
     val_labels = [item[1] for item in val_data]
     
     train_imgs, train_labels = shuffle_image_label(train_imgs, train_labels)
-    val_imgs, val_labels = shuffle_image_label(val_imgs, val_labels)
+    # val_imgs, val_labels = shuffle_image_label(val_imgs, val_labels) data validasi tidak perlu diacak
     
     train_imgs, val_imgs = np.array(train_imgs),np.array(val_imgs)
     train_labels, val_labels = np.array(train_labels).reshape((-1,1)), np.array(val_labels).reshape((-1,1))
