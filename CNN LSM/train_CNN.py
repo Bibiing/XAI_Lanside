@@ -15,10 +15,10 @@ from utils import drawAUC_TwoClass, draw_acc, draw_loss
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train CNN Processes on data")
-    parser.add_argument("--feature_path", default='Data/samodra/A/', type=str)
-    parser.add_argument("--label_path", default='Data/samodra/label/A/label.tif', type=str)
-    parser.add_argument("--output_dir", default='Hasil/', type=str)
-    parser.add_argument("--window_size", default=45, type=int)
+    parser.add_argument("--feature_path", default='Data/mojokerto/feature11/', type=str)
+    parser.add_argument("--label_path", default='Data/mojokerto/label/label1.tif', type=str)
+    parser.add_argument("--output_dir", default='Hasil/mojokerto/feature11', type=str)
+    parser.add_argument("--window_size", default=15, type=int)
     parser.add_argument("--lr", default=0.001, type=float)
     parser.add_argument("--batch_size", default=128, type=int)
     parser.add_argument("--epochs", default=500, type=int)
@@ -27,19 +27,27 @@ def parse_args():
 
 def main():
     args = parse_args()
-    padded_features = []
-    n = args.window_size // 2
+    os.makedirs(args.output_dir, exist_ok=True)
 
+    padded_features = []
+    norm_params = {}
+    n = args.window_size // 2
+    
     reader.validate_consistency(args.feature_path, args.label_path) # validate data
     feature_files = sorted([f for f in os.listdir(args.feature_path) if f.lower().endswith('.tif')])
 
     # processing features
     for feature_name in feature_files:
         img = reader.read_data_from_tif(os.path.join(args.feature_path, feature_name))
-        norm_img, _, _ = preprocessor.normalize_min_max(img)
+        norm_img, norm_param = preprocessor.normalize_min_max(img)
+        norm_params[feature_name] = norm_param
         padded_img = preprocessor.apply_padding(norm_img, n, pad_value=0)
         padded_features.append(padded_img)
-        
+
+    # save norm params
+    with open(os.path.join(args.output_dir, 'norm_params.json'), 'w') as f:
+        json.dump(norm_params, f, indent=4)
+    
     feature_block = np.array(padded_features)
     print(f"Feature block created successfully: {feature_block.shape}")
     

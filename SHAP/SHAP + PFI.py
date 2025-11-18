@@ -144,31 +144,3 @@ def plot_force(idx, shap_vals_class, filename):
 
 plot_force(5, shap_vals_1, "shap_force_longsor.png")
 plot_force(10, shap_vals_0, "shap_force_nonlongsor.png")
-
-# ================== PERMUTATION FEATURE IMPORTANCE ==================
-pfi_scores = []
-acc_orig = accuracy_score(y_test, model(X_test_tensor).argmax(dim=1).cpu().numpy())
-
-for i in range(n_feature):
-    X_perm = X_test.copy()
-    np.random.shuffle(X_perm[:, i, :, :])
-    X_perm_tensor = torch.tensor(X_perm, dtype=torch.float32).to(DEVICE)
-    y_pred_perm = model(X_perm_tensor).argmax(dim=1).cpu().numpy()
-    acc_shuffled = accuracy_score(y_test, y_pred_perm)
-    pfi_scores.append(acc_orig - acc_shuffled)
-
-# ================== SHAP vs PFI COMPARISON ==================
-mean_shap_vals = np.abs(shap_vals_1).mean(axis=0)
-x = np.arange(n_feature)
-bar_width = 0.35
-
-plt.figure(figsize=(12, 6))
-plt.bar(x - bar_width/2, mean_shap_vals, width=bar_width, label='SHAP (Class 1)')
-plt.bar(x + bar_width/2, pfi_scores, width=bar_width, label='PFI')
-plt.xticks(x, FEATURE_NAMES, rotation=45)
-plt.ylabel("Feature Importance")
-plt.title("SHAP (Longsor) vs Permutation Feature Importance")
-plt.legend()
-plt.tight_layout()
-plt.savefig(os.path.join(OUTPUT_DIR, "shap_vs_pfi.png"))
-plt.close()
