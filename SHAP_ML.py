@@ -70,19 +70,20 @@ shap_vals_0, shap_vals_1 = unify_shap_output(shap_values)
 
 # SHAP Summary Plots
 plt.figure()
-shap.summary_plot(shap_vals_1, x_test, feature_names=feature_names, show=False)
+shap.summary_plot(shap_vals_1, x_test, feature_names=feature_names, show=False, plot_type="violin")
 plt.tight_layout()
-plt.savefig(os.path.join(args.output_dir, "shap_summary_nls_violin.png"))
+plt.savefig(os.path.join(args.output_dir, "shap_summary_nls.png"))
 plt.close()
 print("violin plot class 1 done")
 
 plt.figure()
-shap.summary_plot(shap_vals_0, x_test, feature_names=feature_names, show=False)
+shap.summary_plot(shap_vals_0, x_test, feature_names=feature_names, show=False, plot_type="violin")
 plt.tight_layout()
-plt.savefig(os.path.join(args.output_dir, "shap_summary_ls_violin.png"))
+plt.savefig(os.path.join(args.output_dir, "shap_summary_ls.png"))
 plt.close()
 print("violin plot class 0 done")
 
+# Feature Importance Plot
 plt.figure()
 shap.summary_plot(shap_vals_1, x_test, feature_names=feature_names, show=False, plot_type="bar")
 plt.tight_layout()
@@ -91,26 +92,20 @@ plt.close()
 print("feature importance plot done")
 
 mean_shap = np.abs(shap_vals_1).mean(axis=0)
-sorted_idx = np.argsort(mean_shap)[::-1]
-top1 = feature_names[sorted_idx[0]]
-top2 = feature_names[sorted_idx[1]]
+top2 = np.argsort(mean_shap)[-2:][::-1] # top-2
+
+top1, top2 = top2
+feat1_name = feature_names[top1]
+feat2_name = feature_names[top2]
 # print("Top feature 1:", top1)
 # print("Top feature 2:", top2)
 
 #dependence plots
 plt.figure()
-shap.dependence_plot(top1, shap_vals_1, x_test, show=False)
+shap.dependence_plot(top1, shap_vals_1, x_test, interaction_index=top2, show=False)
 plt.tight_layout()
-plt.savefig(os.path.join(args.output_dir, f"dependence_{top1}.png"))
+plt.savefig(os.path.join(args.output_dir, f"dependence_{feat1_name}_vs_{feat2_name}.png"))
 plt.close()
-print("top 1 feature dependence done")
-
-plt.figure()
-shap.dependence_plot(top2, shap_vals_1, x_test, show=False)
-plt.tight_layout()
-plt.savefig(os.path.join(args.output_dir, f"dependence_{top2}.png"))
-plt.close()
-print("top 2 feature dependence done")
 
 def plot_force(idx, shap_vals_class,  filename):
     feats = [""] * len(feature_names)

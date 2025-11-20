@@ -64,6 +64,7 @@ def optimize_gb(trial, x_train, y_train, x_val, y_val):
 
 def main():
     args = parse_args()
+    os.makedirs(args.output_dir, exist_ok=True)
     
     train_df, val_df = dataset.get_ML_data(args.feature_path, args.label_path)
     x_train = train_df.iloc[:, :-1]

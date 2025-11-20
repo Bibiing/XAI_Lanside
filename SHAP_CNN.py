@@ -149,8 +149,7 @@ feat1_name = feature_files[top1]
 feat2_name = feature_files[top2]
 
 # print("features:", feat1_name, ",", feat2_name)
-plot_dependence(top1, top2, f"dependence_{feat1_name}.png")
-plot_dependence(top2, top1, f"dependence_{feat2_name}.png")
+plot_dependence(top1, top2, f"dependence_{feat1_name}_vs_{feat2_name}.png")
 print("dependence plots done")
 
 # FORCE PLOTS 
