@@ -105,6 +105,25 @@ def get_ML_data(tif_paths, label_path):
     train_imgs, val_imgs = np.array(train_imgs),np.array(val_imgs)
     train_labels, val_labels = np.array(train_labels).reshape((-1,1)), np.array(val_labels).reshape((-1,1))
     print(train_imgs.shape,val_imgs.shape, train_labels.shape,val_labels.shape )
-    train_df = pd.DataFrame(np.concatenate((train_imgs, train_labels), axis=1), columns=data_name)
-    val_df = pd.DataFrame(np.concatenate((val_imgs, val_labels), axis=1), columns=data_name)
-    return train_df, val_df
+
+    # Min-Max Normalization
+    train_min = train_imgs.min(axis=0)
+    train_max = train_imgs.max(axis=0)
+    train_range = train_max - train_min
+    train_range[train_range == 0] = 1 
+    
+    train_imgs_normalized = (train_imgs - train_min) / train_range
+    val_imgs_normalized = (val_imgs - train_min) / train_range  
+    
+    train_df = pd.DataFrame(np.concatenate((train_imgs_normalized, train_labels), axis=1), columns=data_name)
+    val_df = pd.DataFrame(np.concatenate((val_imgs_normalized, val_labels), axis=1), columns=data_name)
+    
+    norm_params = {
+        'min': train_min.tolist(),
+        'max': train_max.tolist(),
+        'range': train_range.tolist(),
+        'method': 'minmax',
+        'feature_names': data_name[:-1]  
+    }
+    
+    return train_df, val_df, norm_params

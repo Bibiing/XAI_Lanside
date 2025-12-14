@@ -30,4 +30,3 @@ def validate_consistency(feature_dir, label_path):
                 sys.exit()
     print("Data consistency check passed.")
     return True
-    

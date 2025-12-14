@@ -15,13 +15,17 @@ from utils import drawAUC_TwoClass, draw_acc, draw_loss
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train CNN Processes on data")
-    parser.add_argument("--feature_path", default='Data/mojokerto/feature11/', type=str)
+    parser.add_argument("--feature_path", default='Data/mojokerto/feature11', type=str)
     parser.add_argument("--label_path", default='Data/mojokerto/label/label1.tif', type=str)
-    parser.add_argument("--output_dir", default='Hasil/mojokerto/feature11', type=str)
+    parser.add_argument("--output_dir", default='Hasil/mojokerto/SHAP/CNN', type=str)
     parser.add_argument("--window_size", default=15, type=int)
     parser.add_argument("--lr", default=0.001, type=float)
     parser.add_argument("--batch_size", default=128, type=int)
     parser.add_argument("--epochs", default=500, type=int)
+    parser.add_argument("--optimizer", default='SGD', type=str, help="SGD, Adam")
+    parser.add_argument("--step_size", default=50, type=int)
+    parser.add_argument("--gamma", default=0.1, type=float)
+    parser.add_argument("--weight_decay", default=1e-3, type=float)
     args = parser.parse_args()
     return args
 
@@ -66,15 +70,18 @@ def main():
     train_loader = DataLoader(dataset=train_dataset, batch_size=args.batch_size, shuffle=True)
     
     val_dataset = TensorDataset(torch.from_numpy(val_x).float(), torch.from_numpy(val_y).float())
-    val_loader = DataLoader(dataset=val_dataset, batch_size=args.batch_size, shuffle=True)
+    val_loader = DataLoader(dataset=val_dataset, batch_size=args.batch_size, shuffle=False)
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f"Using device: {device}")
     
     model = LSM_cnn(in_chanel=feature_block.shape[0]).to(device)
     criterion = nn.CrossEntropyLoss().to(device)
-    optimizer = optim.SGD(model.parameters(), lr=args.lr)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
+    if args.optimizer == 'Adam':
+        optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    else:
+        optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=args.gamma)
     
     max_acc = 0.0
     record = {"train": {"acc": [], "loss": []}, "val": {"acc": [], "loss": []}}
@@ -128,10 +135,11 @@ def main():
             max_acc = avg_val_acc
             torch.save(model.state_dict(), os.path.join(args.output_dir, 'best.pth'))
             
-            score_array_val = np.array(val_outputs_list)
-            score_array_train = np.array(train_outputs_list)
-            drawAUC_TwoClass(val_labels_list, score_array_val[:, 1], os.path.join(args.output_dir, 'val_AUC.png'))
-            drawAUC_TwoClass(train_labels_list, score_array_train[:, 1], os.path.join(args.output_dir, 'train_AUC.png'))
+            probs_val = torch.softmax(torch.tensor(val_outputs_list), dim=1).numpy()
+            probs_train = torch.softmax(torch.tensor(train_outputs_list), dim=1).numpy()
+
+            drawAUC_TwoClass(val_labels_list, probs_val[:, 1], os.path.join(args.output_dir, 'val_AUC.png'))
+            drawAUC_TwoClass(train_labels_list, probs_train[:, 1], os.path.join(args.output_dir, 'train_AUC.png'))
 
         record["train"]["acc"].append(avg_train_acc)
         record["train"]["loss"].append(avg_train_loss)
