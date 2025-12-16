@@ -10,12 +10,12 @@ def tree_explainer(model, X):
 
     # Binary / multiclass handling
     if isinstance(shap_values, list):
-        shap_values = np.array(shap_values[1])  # class positif
-        expected_value = explainer.expected_value[1] if isinstance(explainer.expected_value, (list, np.ndarray)) else explainer.expected_value
+        shap_values = np.array(shap_values[0])  # class longsor
+        expected_value = explainer.expected_value[0] if isinstance(explainer.expected_value, (list, np.ndarray)) else explainer.expected_value
         print("1")
     elif shap_values.ndim == 3:
-        shap_values = shap_values[:, :, 1]
-        expected_value = explainer.expected_value[1] if isinstance(explainer.expected_value, (list, np.ndarray)) else explainer.expected_value
+        shap_values = shap_values[:, :, 0]
+        expected_value = explainer.expected_value[0] if isinstance(explainer.expected_value, (list, np.ndarray)) else explainer.expected_value
         print("2")
     else:
         shap_values = np.array(shap_values)
@@ -23,16 +23,6 @@ def tree_explainer(model, X):
         print("3")
 
     return explainer, shap_values, expected_value
-
-
-def cnn_explainer(model, X_background, X_test, device):
-    X_bg_tensor = torch.tensor(X_background, dtype=torch.float32).to(device)
-    X_test_tensor = torch.tensor(X_test, dtype=torch.float32).to(device)
-
-    model.eval()
-    explainer = shap.GradientExplainer(model, X_bg_tensor)
-    shap_values = explainer.shap_values(X_test_tensor)
-    return explainer, shap_values
 
 def plot_shap_summary(shap_values, X, feature_names=None, plot_type="violin"):
     # Convert feature_names to list to avoid numpy array issues
@@ -96,9 +86,11 @@ def plot_dependence_top2(shap_values, X, feature_names):
 
 
 
-def plot_force(explainer, shap_values, X, expected_value, index=0):
+def plot_force(explainer, shap_values, X, expected_value, index=0, output_name=None):
     shap.initjs()
-    return display(shap.force_plot(expected_value, shap_values[index], X.iloc[index]))
+    force_plot = shap.force_plot(expected_value, shap_values[index], X.iloc[index])
+    shap.save_html(f"shap_force_plot_{output_name}.html", force_plot)
+    return display(force_plot)
 
 
 

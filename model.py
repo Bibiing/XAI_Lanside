@@ -25,7 +25,7 @@ class LSM_cnn(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(64),            
             nn.MaxPool2d(2),  # [64, 64, 64]
-            nn.Dropout(0.3)
+            nn.Dropout(0.4)
             )
         self.se1 = SELayer(channel=64, reduction=16)
         self.conv2 = nn.Sequential(
@@ -33,7 +33,7 @@ class LSM_cnn(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(128),
             nn.MaxPool2d(2),  # [128, 32, 32]
-            nn.Dropout(0.3)
+            nn.Dropout(0.4)
 
         )
         self.se2 = SELayer(channel=128, reduction=16)
@@ -41,7 +41,7 @@ class LSM_cnn(nn.Module):
             nn.Conv2d(128, 256, 3, 1, 1),  # [256, 32, 32]
             nn.ReLU(),
             nn.BatchNorm2d(256),
-            nn.Dropout(0.3)
+            nn.Dropout(0.4)
         )
         
         #self.fc1 = nn.Linear(256*4*4, 384)

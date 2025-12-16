@@ -53,7 +53,7 @@ def get_CNN_data(feature_block, label_raster, window_size):
         
     # Acak dan kembalikan sebagai NumPy array
     train_imgs, train_labels = shuffle_image_label(train_imgs, train_labels)
-    val_imgs, val_labels = shuffle_image_label(val_imgs, val_labels)
+    # val_imgs, val_labels = shuffle_image_label(val_imgs, val_labels)
 
     return (np.array(train_imgs), np.array(train_labels).reshape(-1, 1), np.array(val_imgs), np.array(val_labels).reshape(-1, 1))
 
@@ -66,7 +66,7 @@ def get_ML_data(tif_paths, label_path):
     tif = gdal.Open(label_path)
     w, h = tif.RasterXSize, tif.RasterYSize
     label = np.array(tif.ReadAsArray(0, 0, w, h).astype(np.float32))
-    for tif_data in os.listdir(tif_paths):
+    for tif_data in sorted(os.listdir(tif_paths)):
         img = read_data_from_tif(os.path.join(tif_paths, tif_data))
         data_name.append(tif_data.split('.')[0])
         data.append(img)
@@ -118,12 +118,4 @@ def get_ML_data(tif_paths, label_path):
     train_df = pd.DataFrame(np.concatenate((train_imgs_normalized, train_labels), axis=1), columns=data_name)
     val_df = pd.DataFrame(np.concatenate((val_imgs_normalized, val_labels), axis=1), columns=data_name)
     
-    norm_params = {
-        'min': train_min.tolist(),
-        'max': train_max.tolist(),
-        'range': train_range.tolist(),
-        'method': 'minmax',
-        'feature_names': data_name[:-1]  
-    }
-    
-    return train_df, val_df, norm_params
+    return train_df, val_df

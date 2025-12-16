@@ -80,7 +80,7 @@ def drawAUC_TwoClass(y_true,y_score,path):
     plt.ylabel('True Positive Rate')  #tpr
     plt.legend(loc="lower right")
 
-    print("AUC:",roc_auc)
+    # print("AUC:",roc_auc)
     plt.savefig(''+path, format='png')
     plt.cla()
     plt.close("all")
@@ -110,13 +110,13 @@ def acc(y_true, y_pred):
     return np.mean(y_true == y_pred)
 
 def precis(y_true, y_pred):
-    tp = np.sum((y_true == 1) & (y_pred == 1))
-    fp = np.sum((y_true == 0) & (y_pred == 1))
+    tp = np.sum((y_true == 0) & (y_pred == 0))
+    fp = np.sum((y_true == 1) & (y_pred == 0))
     return tp / (tp + fp + 1e-9)
 
 def recall(y_true, y_pred):
-    tp = np.sum((y_true == 1) & (y_pred == 1))
-    fn = np.sum((y_true == 1) & (y_pred == 0))
+    tp = np.sum((y_true == 0) & (y_pred == 0))
+    fn = np.sum((y_true == 0) & (y_pred == 1))
     return tp / (tp + fn + 1e-9)
 
 def f1(y_true, y_pred):
